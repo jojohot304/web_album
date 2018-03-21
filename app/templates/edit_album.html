@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block page_content %}
+
+<div class="page-header">
+    <h1>编辑相册</h1>
+</div>
+
+    <ol class="breadcrumb" id="navigation">
+        <li><a href="{{ url_for('main.show_albums') }}">我的相册</a></li>
+        <li class="active">编辑相册</li>
+        <li class="pull-right"><a href="{{ url_for('main.show_album',id=album['_id'] )}}">返回相册</a></li>
+    </ol>
+
+    <form action="{{ url_for('main.edit_album', id=album['_id'])}}" method="POST">
+        <div class="sort-area">
+            <div class="row">
+                <section id="wrapper">
+                    <ul class="images images-edit" id="images">
+                        {%  for photo in photos %}
+                            <li><div class="edit-thumbnail">
+                                <img class="img-responsive portrait" src="{{ url_for('main.show_thumbnail',id=photo['_id']) }}" alt="description"/>
+                            </div><br>
+                            <textarea name="{{ photo['_id']|string }}comments" placeholder="添加描述" rows="3">{% if photo['comments']!= "" %}{{ photo['comments'] }}{% endif %}</textarea>
+                            设为封面<input type="radio" name="album_cover_id" value="{{ photo['_id'] }}" {% if photo['thumbnail'] == album['album_cover'] %} checked {% endif %} >
+                            <a href="{{ url_for('main.delete_photo', id=photo['_id']) }}" class="pull-right btn btn-danger btn-xs" >删除</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </section>
+            </div>
+                 <div class="row text-center">
+                        <hr>
+                        <input class="btn btn-success" type="submit" name="submit" value="提交">
+                        <a class="btn btn-default" href="{{ url_for('main.show_album', id=album['_id'])}}">取消</a>
+                 </div>
+        </div>
+    </form>
+
+
+{% endblock %}

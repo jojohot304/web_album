@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+
+{% block title %} {{ album['album_name'] }}{% endblock %}
+
+{% block head %}
+
+{{ super() }}
+<link href="{{ url_for('static', filename='css/lightbox.css') }}", rel="stylesheet">
+
+{% endblock %}
+
+{% block page_content %}
+
+    <div class="page-header">
+        <h3>{{ album['album_name'] }}   <small>{{ album['about_album'] }}</small></h3>
+        <p>{{ album['photo_ids']|count }}张照片 创建于 {{ album['created_at'] }}</p>
+        <div class="pull-right">
+            <a class="btn btn-default" href="{{ url_for('main.new_photo', id=album['_id']) }}" title="添加照片">添加照片</a>
+            <a class="btn btn-default" href="{{ url_for('main.edit_album', id=album['_id']) }}" title="编辑相册">编辑</a>
+            <a class="btn btn-default" href="{{ url_for('main.order_photo', id=album['_id']) }}" title="按时间排序">按时间排序</a>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            {% for photo in photos %}
+                <div class="image col-md-3">
+                    <a class="thumbnail" href="{{ url_for('main.show_photo',id=photo['_id']) }}" data-lightbox="album-set" data-title="{{ photo['comments'] }}">
+                        <img class="img-responsive" src="{{ url_for('main.show_thumbnail', id=photo['_id'])}}" alt="" />
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    <script src="{{url_for('static',filename='js/lightbox-plus-jquery.js')}}"></script>
+{% endblock %}

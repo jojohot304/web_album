@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %} {{ current_user.username }} - 相册 {% endblock %}
+{% block page_content %}
+    <div class="row">
+            <div class="col-md-9">
+                <div class="text-center container-fluid">
+                    {% if albums == [] %}
+                        <h3>你还没有相册,赶快<a href="{{ url_for('main.new_album') }}">创建</a>一个吧!</h3>
+                    {% endif %}
+
+                <div class="row text-center">
+                    {% for album in albums %}
+                    <div class="album col-md-3">
+                        <div class="album-frame">
+                            <a class="thumbnail album-thumbnail" href="{{ url_for('main.show_album',id=album['_id']) }}">
+                                <img class="img-responsive" src="{{ url_for('main.show_album_cover',id=album['_id']) }}">
+                            </a>
+                        </div>
+                        <div>
+                            <h5><a href="{{ url_for('main.show_album',id=album['_id']) }}">{{ album['album_name'] }}</a></h5>
+                            <span>{{ album['photo_ids']|count }}张图片</span>
+                            <span>创建于{{ album['created_at'] }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                </div>
+
+            </div>
+    </div>
+{% endblock %}

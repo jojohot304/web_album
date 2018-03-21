@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <title>Upload new File</title>
+    <h1>Upload new File</h1>
+
+    <form method="POST" enctype="multipart/form-data">
+     {{ form.hidden_tag() }}
+     {{ form.photo }}
+     {% for error in form.photo.errors %}
+         <span style="color: red;">{{ error }}</span>
+     {% endfor %}
+     {{ form.submit }}
+    </form>
+
+
+
+    {% if all_photos != [] %}
+        {% for photo in all_photos %}
+        <p> {{ photo._file['filename'] }} <img height="150px" width="175px" src="{{ url_for('main.show_photo',id = photo._file['_id'])}}"/> </p>
+        {% endfor %}
+    {% endif %}
+
+
+{% endblock %}

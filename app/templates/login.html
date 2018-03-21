@@ -1,0 +1,14 @@
+{% extends "bootstrap/base.html" %}
+{%  import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}登录{% endblock %}
+
+{% block content %}
+
+    <div class="page-header col-md-offset-5 col-md-2">
+        <h3>你好,请登录<small><a href="{{ url_for('main.register') }}">点击注册</a></small></h3>
+    </div>
+    <div class="col-md-offset-5 col-md-2">
+    {{wtf.quick_form(form)}}
+    </div>
+{% endblock %}

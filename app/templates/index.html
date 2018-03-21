@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block page_content %}
+
+    <title>Index</title>
+    <h1>Choose what you want</h1>
+
+    <a href = "{{ url_for('main.upload_file') }}">show albums</a>
+    <br>
+    <a href = "{{ url_for('main.show_map') }}">show photos location</a>
+
+
+{% endblock %}
