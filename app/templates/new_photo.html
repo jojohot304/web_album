@@ -18,7 +18,8 @@
     <div class="col-md-6">
             <form class="form form-horizontal" method="POST" enctype="multipart/form-data">
                 {{ form.hidden_tag() }}
-                {{ wtf.form_field(form.photo, multiple="multiple") }}
+                {{ wtf.form_field(form.photo,multiple='multiple') }}
+                <p class="bg-warning">最大可以一次性上传10张照片，点击下方按钮确认上传</p>
                 {{ wtf.form_field(form.submit) }}
             </form>
     </div>

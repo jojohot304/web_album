@@ -15,7 +15,7 @@
             <div class="navbar-header">
                 <a class="navbar-brand" href="{{ url_for('main.show_albums') }}">
                     <b>
-                        <span class="sitename">相册</span>
+                        <span class="sitename">我的相册</span>
                     </b>
                 </a>
 
@@ -23,8 +23,8 @@
 
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><a href="{{ url_for('main.show_albums') }}">首页</a></li>
-                    <li><a href="{{ url_for('main.show_albums') }}">图片</a></li>
+                    <li><a href="{{ url_for('main.show_albums') }}">所有相册</a></li>
+                    <li><a href="{{ url_for('main.show_map') }}">我的足迹</a></li>
                     <li><a href="{{ url_for('main.about_me') }}">关于我</a></li>
                 </ul>
 
@@ -65,4 +65,8 @@
     {% block page_content %}
     {% endblock %}
     </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
 {% endblock %}

@@ -2,7 +2,7 @@
 import json
 import pprint
 import gridfs
-from app.models import User, Album, Photo, Temp, verify_password
+from app.models import User, Album, Photo, Temp, verify_password, db
 from bson.objectid import ObjectId
 from flask import request, render_template, url_for, redirect, flash, current_app
 from flask_login import login_user, login_required, current_user, logout_user
@@ -12,8 +12,6 @@ from . import main
 
 ALLOWED_EXTENDSIONS = set(['txt','pdf','png','jpg','gif','jpeg', 'JPG'])
 
-
-db = MongoClient('mongodb://webuser:user123@59.110.173.232:27017').admin
 fs = gridfs.GridFS(db)
 
 
@@ -48,20 +46,15 @@ def new_photo(id):
     print('album id is', id)
     form = NewPhotoForm()
     if form.validate_on_submit():
-        file = form.photo.data
-        photo_id = Photo(file=file, album_id=ObjectId(str(id))).new_photo()
-        photo_ids = db.images.find_one({'_id': ObjectId(str(id))})['photo_ids']
-        photo_ids.append(photo_id)
-        thumbnail_content = db.fs.files.find_one({'_id': ObjectId(str(photo_id))})['thumbnail']
-        db.images.update_one({'_id': ObjectId(str(id))}, {'$set': {'photo_ids': photo_ids, 'album_cover': thumbnail_content}},upsert=True)
+        photo_file = request.files.getlist("photo")
+        for file in photo_file:
+            photo_id = Photo(file=file, album_id=ObjectId(str(id))).new_photo()
+            photo_ids = db.images.find_one({'_id': ObjectId(str(id))})['photo_ids']
+            photo_ids.append(photo_id)
+            thumbnail_content = db.fs.files.find_one({'_id': ObjectId(str(photo_id))})['thumbnail']
+            db.images.update_one({'_id': ObjectId(str(id))}, {'$set': {'photo_ids': photo_ids, 'album_cover': thumbnail_content}},upsert=True)
         return redirect(url_for('main.new_photo', id=id))
     return render_template('new_photo.html', form=form, album=db.images.find_one({'_id': ObjectId(str(id))}))
-
-
-@main.route('/initialphoto/', methods=['GET', 'POST'])
-@login_required
-def initial_photo():     #在导航栏上传照片，可以选择对应相册上传对应照片
-    return '00'
 
 
 @main.route('/photo/<id>', methods=['GET'])
@@ -72,6 +65,16 @@ def show_photo(id):
     rsp = current_app.make_response(photo_content)
     rsp.headers['Content-Type'] = 'image/jpeg'
     return rsp
+
+
+@main.route('/fullphoto/<id>', methods=['GET'])
+@login_required
+def show_full_photo(id):
+    photo = db.fs.files.find_one({'_id': ObjectId(str(id))})
+    album = db.images.find_one({'_id': ObjectId(str(photo['album_id']))})
+    photo_index_and_id = Album.get_photo_index_and_id(album, photo)
+    print(photo_index_and_id)
+    return render_template('full_photo.html', photo=photo, album=album, photo_index_and_id=photo_index_and_id)
 
 
 @main.route('/thumbnail/<id>', methods=['GET', 'POST'])
@@ -128,7 +131,7 @@ def edit_album(id):
         photos.append(photo)
     if request.method == 'POST':
         for edit_photo_id in album['photo_ids']:
-            db.fs.files.update_one({'_id': ObjectId(edit_photo_id)},{'$set': {'comments': request.form[str(edit_photo_id)+'comments']}})
+            db.fs.files.update_one({'_id': ObjectId(edit_photo_id)}, {'$set': {'comments': request.form[str(edit_photo_id)+'comments']}})
         print ('album_cover_id is',request.form['album_cover_id'])
         album_cover = db.fs.files.find_one({'_id': ObjectId(request.form['album_cover_id'])})['thumbnail']
         db.images.update_one({'_id': ObjectId(id)}, {'$set': {'album_cover': album_cover}})
@@ -136,12 +139,29 @@ def edit_album(id):
     return render_template('edit_album.html', album=album, photos=photos)
 
 
+@main.route('/editphoto/<id>', methods=['GET', 'POST'])
+@login_required
+def edit_photo(id):
+    photo = db.fs.files.find_one({'_id':ObjectId(id)})
+    if request.method == 'POST':
+        db.fs.files.update_one({'_id': ObjectId(id)}, {'$set': {'comments': request.form['comments']}})
+    return redirect(url_for('main.show_full_photo', id=id))
+
+
 @main.route('/map/')
 @login_required
 def show_map():
     all_location = []
-    for photo_file in fs.find({'user_id': current_user.id}):
-        all_location.append([photo_file._file['location']['location']['lng'], photo_file._file['location']['location']['lat']])
+    album_ids = User.get_user(current_user.id)['album_ids']
+    for album_id in album_ids:
+        photo_ids = Album.get_photo_ids(album_id)
+        print('photo_ids is',photo_ids)
+        for photo_id in photo_ids:
+            photo_location = Photo.get_gps_info(photo_id)
+            print ('photo_location is',photo_location)
+            if photo_location != {'lat': None, 'lng': None}:
+                all_location.append([photo_location['lng'], photo_location['lat']])
+    print ('当前用户位置信息有：', all_location)
     return render_template('location.html', all_location=json.dumps(all_location))
 
 

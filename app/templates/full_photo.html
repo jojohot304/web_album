@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block page_content %}
+
+    <div class="container">
+    <div class="row">
+    <div class="col-md-2 text-left"><span>第{{ photo_index_and_id[0] }}张 / 共{{ album['photo_ids']|count }}张</span></div>
+    <div class="col-md-3 text-right"><a href="{{ url_for('main.show_full_photo', id=photo_index_and_id[1])}}">上一张</a></div>
+    <div class="col-md-3 text-left"><a href="{{ url_for('main.show_full_photo', id=photo_index_and_id[2])}}">下一张</a></div>
+    <div class="col-md-2 text-right"><span><a href="{{ url_for('main.show_album',id=album['_id']) }}">返回相册</a></span></div>
+    </div>
+    <div class="row">
+    <div class="col-md-10">
+        <a class="image" href="{{ url_for('main.show_full_photo', id=photo_index_and_id[2]) }}">
+            <img class="img-responsive" src="{{ url_for('main.show_photo',id=photo['_id']) }}">
+        </a>
+    </div>
+    </div>
+    <p class="row col-md-3 text-left" id="comments-text">{% if photo['comments']!=""%}{{ photo['comments'] }}{% else %}添加照片描述{% endif %}</p>
+    <button class="row col-md-1" id="edit_btn">编辑</button>
+    <form id="comments_form" action="{{ url_for('main.edit_photo',id=photo['_id']) }}" method="POST">
+         <div class="row">
+         <div class="col-md-10">
+            <textarea name="comments" placeholder="添加照片描述" rows="3" cols="20">{% if photo['comments']!=""%}{{ photo['comments'] }}{% endif %}</textarea>
+        </div>
+        </div>
+        <div class="row col-md-10 text-left">
+            <input id="comments_form_submit" class="btn btn-success" type="submit" name="submit" value="提交">
+            <button id="comments_form_cancel" class="btn btn-default" >取消</button>
+        </div>
+    </form>
+    </div>
+
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+ <script>
+    $(document).ready(function(){
+        $("#comments_form").hide();
+        $("#edit_btn").click(function(){
+            $("#edit_btn").hide();
+            $("p").hide();
+            $("#comments_form").show();
+            });
+        $("#comments_form_submit").click(function(){
+            $("#edit_btn").show();
+            $("p").show();
+            $("#comments_form").hide();
+            });
+        $("#comments_form_cancel").click(function(){
+            $("#edit_btn").show();
+            $("p").show();
+            $("#comments_form").hide();
+            });
+    });
+    </script>
+
+{% endblock %}
