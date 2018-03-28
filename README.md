@@ -13,8 +13,8 @@
 ![Location](img/Location.JPG)
 
 ## 使用指导
-安装相关依赖包: pip install -r requirements.txt
+安装相关依赖包: pip install -r requirements.txt  
 直接运行APP: python runserver.py
 
-也可以访问url(https://xiaohu89album.herokuapp.com/)来使用在线相册APP
+也可以访问url来使用在线相册APP (https://xiaohu89album.herokuapp.com/)
 
